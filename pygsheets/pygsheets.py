@@ -1,3 +1,9 @@
+############################################################################################################
+# Documentation: https://developers.google.com/sheets/api/quickstart/python
+# Python client for Google Sheets
+# For accessing and manipulating data in Google Sheets
+############################################################################################################
+
 from __future__ import print_function
 import httplib2
 import os
@@ -11,6 +17,7 @@ from config import Config
 from invoicing import easybill_api
 import datetime
 import json
+import pandas
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -60,5 +67,12 @@ class pygsheetsApiClient:
 
 	def append(self, spreadsheetId, rangeName, data, valueInputOption="RAW"):
 		return self.service.spreadsheets().values().append(
-	    				spreadsheetId=spreadsheetId, range=rangeName,
-	    				valueInputOption=valueInputOption, body=data).execute()
+						spreadsheetId=spreadsheetId, range=rangeName,
+						valueInputOption=valueInputOption, body=data).execute()
+
+	def getAll(self, spreadsheetId, rangeName, valueInputOption="RAW"):
+		result = self.service.spreadsheets().values().get(
+						spreadsheetId=spreadsheetId, range=rangeName).execute()
+		
+		header = result["values"].pop(0)
+		return pandas.DataFrame(result["values"], columns=header)
